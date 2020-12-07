@@ -3,31 +3,31 @@ from Crypto.Signature import PKCS1_v1_5
 from Crypto.Hash import SHA256
 import Crypto.Random
 import binascii
+import json
 
 
 class Wallet:
-    """Creates, loads and holds private and public keys. Manages transaction
-    signing and verification."""
-
     def __init__(self, node_id):
         self.private_key = None
         self.public_key = None
         self.node_id = node_id
 
     def create_keys(self):
-        """Create a new pair of private and public keys."""
         private_key, public_key = self.generate_keys()
         self.private_key = private_key
         self.public_key = public_key
 
     def save_keys(self):
-        """Saves the keys to a file (wallet.txt)."""
-        if self.public_key is not None and self.private_key is not None:
+        is_public_key = self.public_key is not None
+        is_private_key = self.private_key is not None
+
+        if is_public_key and is_private_key:
             try:
-                with open('wallet-{}.txt'.format(self.node_id), mode='w') as f:
-                    f.write(self.public_key)
-                    f.write('\n')
-                    f.write(self.private_key)
+                with open(f'wallet-{self.node_id}.json', mode='w') as f:
+                    keys = {'public-key': self.public_key,
+                            'private-key': self.private_key}
+
+                    json.dump(keys, f)
                 return True
             except (IOError, IndexError):
                 print('Saving wallet failed...')
@@ -36,12 +36,10 @@ class Wallet:
     def load_keys(self):
         """Loads the keys from the wallet.txt file into memory."""
         try:
-            with open('wallet-{}.txt'.format(self.node_id), mode='r') as f:
-                keys = f.readlines()
-                public_key = keys[0][:-1]
-                private_key = keys[1]
-                self.public_key = public_key
-                self.private_key = private_key
+            with open(f'wallet-{self.node_id}.json', mode='r') as f:
+                keys = json.load(f)
+                self.public_key = keys['public-key']
+                self.private_key = keys['private-key']
             return True
         except (IOError, IndexError):
             print('Loading wallet failed...')
