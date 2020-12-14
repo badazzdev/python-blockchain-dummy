@@ -61,15 +61,11 @@ class Blockchain:
         """Initialize blockchain + open transactions data from a file."""
         try:
             with open('data/blockchain-{}.json'.format(self.node_id), mode='r') as f:
-                # file_content = pickle.loads(f.read())
-                file_content = f.readlines()
-                # blockchain = file_content['chain']
-                # open_transactions = file_content['ot']
-                blockchain = json.loads(file_content[0][:-1])
+                blockchain = json.load(f)
                 # We need to convert  the loaded data because Transactions
                 # should use OrderedDict
                 updated_blockchain = []
-                for block in blockchain:
+                for block in blockchain['chain']:
                     converted_tx = [Transaction(
                         tx['sender'],
                         tx['recipient'],
@@ -83,11 +79,10 @@ class Blockchain:
                         block['timestamp'])
                     updated_blockchain.append(updated_block)
                 self.chain = updated_blockchain
-                open_transactions = json.loads(file_content[1][:-1])
                 # We need to convert  the loaded data because Transactions
                 # should use OrderedDict
                 updated_transactions = []
-                for tx in open_transactions:
+                for tx in blockchain["pending-transactions"]:
                     updated_transaction = Transaction(
                         tx['sender'],
                         tx['recipient'],
@@ -95,8 +90,7 @@ class Blockchain:
                         tx['amount'])
                     updated_transactions.append(updated_transaction)
                 self.__open_transactions = updated_transactions
-                peer_nodes = json.loads(file_content[2])
-                self.__peer_nodes = set(peer_nodes)
+                self.__peer_nodes = set(blockchain['peer-nodes'])
         except (IOError, IndexError):
             pass
         finally:
@@ -116,17 +110,14 @@ class Blockchain:
                               block_el.timestamp) for block_el in self.__chain
                     ]
                 ]
-                f.write(json.dumps(saveable_chain))
-                f.write('\n')
+
                 saveable_tx = [tx.__dict__ for tx in self.__open_transactions]
-                f.write(json.dumps(saveable_tx))
-                f.write('\n')
-                f.write(json.dumps(list(self.__peer_nodes)))
-                # save_data = {
-                #     'chain': blockchain,
-                #     'ot': open_transactions
-                # }
-                # f.write(pickle.dumps(save_data))
+
+                json.dump({
+                    "chain": saveable_chain,
+                    "pending-transactions": saveable_tx,
+                    "peer-nodes": list(self.__peer_nodes)
+                }, f)
         except IOError:
             print('Saving failed!')
 
