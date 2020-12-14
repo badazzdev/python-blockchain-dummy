@@ -60,7 +60,7 @@ class Blockchain:
     def load_data(self):
         """Initialize blockchain + open transactions data from a file."""
         try:
-            with open('blockchain-{}.json'.format(self.node_id), mode='r') as f:
+            with open('data/blockchain-{}.json'.format(self.node_id), mode='r') as f:
                 # file_content = pickle.loads(f.read())
                 file_content = f.readlines()
                 # blockchain = file_content['chain']
@@ -105,7 +105,7 @@ class Blockchain:
     def save_data(self):
         """Save blockchain + open transactions snapshot to a file."""
         try:
-            with open('blockchain-{}.json'.format(self.node_id), mode='w') as f:
+            with open('data/blockchain-{}.json'.format(self.node_id), mode='w') as f:
                 saveable_chain = [
                     block.__dict__ for block in
                     [

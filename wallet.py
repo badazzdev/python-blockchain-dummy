@@ -20,35 +20,35 @@ class Wallet:
     def save_keys(self):
         is_public_key = self.public_key is not None
         is_private_key = self.private_key is not None
-
         if is_public_key and is_private_key:
             try:
-                with open(f'wallet-{self.node_id}.json', mode='w') as f:
+                with open(f'data/wallet-{self.node_id}.json', mode='w') as f:
                     keys = {'public-key': self.public_key,
                             'private-key': self.private_key}
 
                     json.dump(keys, f)
                 return True
             except (IOError, IndexError):
-                print('Saving wallet failed...')
+                print('Saving wallet failed!')
                 return False
 
     def load_keys(self):
-        """Loads the keys from the wallet.txt file into memory."""
+        """Loads the keys from the wallet.json file into memory."""
         try:
-            with open(f'wallet-{self.node_id}.json', mode='r') as f:
+            with open(f'data/wallet-{self.node_id}.json', mode='r') as f:
                 keys = json.load(f)
                 self.public_key = keys['public-key']
                 self.private_key = keys['private-key']
             return True
         except (IOError, IndexError):
-            print('Loading wallet failed...')
+            print('Loading wallet failed!')
             return False
 
     def generate_keys(self):
         """Generate a new pair of private and public key."""
         private_key = RSA.generate(1024, Crypto.Random.new().read)
         public_key = private_key.publickey()
+
         return (
             binascii
             .hexlify(private_key.exportKey(format='DER'))
