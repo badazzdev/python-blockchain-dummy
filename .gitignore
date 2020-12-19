@@ -1,5 +1,4 @@
 # 
-*.txt
 data/*.json
 
 # Ignore Mac DS_Store files
