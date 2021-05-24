@@ -1,6 +1,6 @@
 # Pychain
 
-A simple, fully distributed blockchain, written in Python.
+A simple, fully distributed blockchain, written in Python 3.8.2.
 
 ## Getting Started
 
